@@ -43,9 +43,9 @@ class LLMService {
       try {
         this.models.google = new ChatGoogleGenerativeAI({
           apiKey: process.env.GOOGLE_API_KEY,
-          model: 'gemini-2.0-flash-exp'
+          model: 'gemini-1.5-flash'
         });
-        console.log('✅ Google Gemini 2.0 Flash model initialized');
+        console.log('✅ Google Gemini 1.5 Flash model initialized');
       } catch (error) {
         console.error('❌ Failed to initialize Google model:', error);
       }

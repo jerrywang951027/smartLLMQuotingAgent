@@ -503,7 +503,7 @@ Please provide a natural, helpful response to the user based on these tool resul
           llmResponse = {
             content: result.content,
             provider: 'google',
-            model: 'gemini-2.0-flash-exp',
+            model: 'gemini-1.5-flash',
             usage: null
           };
         }

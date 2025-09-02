@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Bot, User, Send, Trash2, Copy, Activity, X, ChevronRight, ChevronLeft } from 'lucide-react';
+import { Bot, User, Send, Trash2, Copy, Activity, X, ChevronRight, ChevronLeft, Moon, Sun } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
 
 function App() {
@@ -9,6 +9,7 @@ function App() {
   const [selectedModel, setSelectedModel] = useState('google'); // Default model - Gemini
   const [showLogWindow, setShowLogWindow] = useState(false);
   const [agentLogs, setAgentLogs] = useState([]);
+  const [isDarkMode, setIsDarkMode] = useState(true); // Default to dark mode
   const messagesEndRef = useRef(null);
   const logEndRef = useRef(null);
 
@@ -222,26 +223,32 @@ function App() {
 
   const renderLogEntry = (log) => {
     return (
-      <div key={log.id} className="border-b border-gray-100 p-3 hover:bg-gray-50">
+      <div key={log.id} className={`border-b p-3 ${
+        isDarkMode 
+          ? 'border-gray-700 hover:bg-gray-700' 
+          : 'border-gray-100 hover:bg-gray-50'
+      }`}>
         <div className="flex items-start space-x-3">
           <div className="flex-shrink-0 mt-1">
             {getLogIcon(log.type)}
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center justify-between">
-              <h4 className="text-sm font-medium text-gray-900">
+              <h4 className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                 {getLogTypeLabel(log.type)}
               </h4>
-              <span className="text-xs text-gray-500">
+              <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                 {formatTimestamp(log.timestamp)}
               </span>
             </div>
             
-            <div className="mt-1 text-xs text-gray-600">
+            <div className={`mt-1 text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
               {log.type === 'user_message' && (
                 <div>
                   <div className="font-medium">Message:</div>
-                  <div className="mt-1 p-2 bg-blue-50 rounded text-gray-800">
+                  <div className={`mt-1 p-2 rounded ${
+                    isDarkMode ? 'bg-blue-900 text-blue-100' : 'bg-blue-50 text-gray-800'
+                  }`}>
                     {log.data.content}
                   </div>
                   <div className="mt-1">Provider: {log.data.provider}</div>
@@ -253,7 +260,9 @@ function App() {
                   <div className="font-medium">Requesting LLM:</div>
                   <div className="mt-1">Provider: {log.data.provider}</div>
                   <div className="mt-1">Chat History: {log.data.chatHistory} messages</div>
-                  <div className="mt-1 p-2 bg-green-50 rounded text-gray-800">
+                  <div className={`mt-1 p-2 rounded ${
+                    isDarkMode ? 'bg-green-900 text-green-100' : 'bg-green-50 text-gray-800'
+                  }`}>
                     {log.data.message}
                   </div>
                 </div>
@@ -265,7 +274,9 @@ function App() {
                   <div className="mt-1">Provider: {log.data.provider}</div>
                   <div className="mt-1">Tools Used: {log.data.toolsUsed}</div>
                   <div className="mt-1">Success: {log.data.success ? 'Yes' : 'No'}</div>
-                  <div className="mt-1 p-2 bg-green-50 rounded text-gray-800 max-h-20 overflow-y-auto">
+                  <div className={`mt-1 p-2 rounded max-h-20 overflow-y-auto ${
+                    isDarkMode ? 'bg-green-900 text-green-100' : 'bg-green-50 text-gray-800'
+                  }`}>
                     {log.data.response}
                   </div>
                 </div>
@@ -277,13 +288,17 @@ function App() {
                   <div className="mt-1">Execution {log.data.index}/{log.data.total}</div>
                   <div className="mt-1">
                     <div className="text-xs font-medium">Input:</div>
-                    <div className="p-1 bg-orange-50 rounded text-gray-800">
+                    <div className={`p-1 rounded ${
+                      isDarkMode ? 'bg-orange-900 text-orange-100' : 'bg-orange-50 text-gray-800'
+                    }`}>
                       {JSON.stringify(log.data.input)}
                     </div>
                   </div>
                   <div className="mt-1">
                     <div className="text-xs font-medium">Output:</div>
-                    <div className="p-1 bg-orange-50 rounded text-gray-800 max-h-16 overflow-y-auto">
+                    <div className={`p-1 rounded max-h-16 overflow-y-auto ${
+                      isDarkMode ? 'bg-orange-900 text-orange-100' : 'bg-orange-50 text-gray-800'
+                    }`}>
                       {typeof log.data.output === 'string' ? log.data.output : JSON.stringify(log.data.output)}
                     </div>
                   </div>
@@ -294,7 +309,9 @@ function App() {
                 <div>
                   <div className="font-medium">LLM Processing Tool Results:</div>
                   <div className="mt-1">Provider: {log.data.provider}</div>
-                  <div className="mt-1 p-2 bg-purple-50 rounded text-gray-800 max-h-20 overflow-y-auto">
+                  <div className={`mt-1 p-2 rounded max-h-20 overflow-y-auto ${
+                    isDarkMode ? 'bg-purple-900 text-purple-100' : 'bg-purple-50 text-gray-800'
+                  }`}>
                     {log.data.finalResponse}
                   </div>
                 </div>
@@ -303,7 +320,9 @@ function App() {
               {log.type === 'error' && (
                 <div>
                   <div className="font-medium">Error:</div>
-                  <div className="mt-1 p-2 bg-red-50 rounded text-red-800">
+                  <div className={`mt-1 p-2 rounded ${
+                    isDarkMode ? 'bg-red-900 text-red-100' : 'bg-red-50 text-red-800'
+                  }`}>
                     {log.data.error}
                   </div>
                 </div>
@@ -328,7 +347,9 @@ function App() {
           <div className={`flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center ${
             isUser 
               ? 'bg-blue-600 text-white' 
-              : 'bg-gray-200 text-gray-600'
+              : isDarkMode
+                ? 'bg-gray-600 text-gray-300'
+                : 'bg-gray-200 text-gray-600'
           }`}>
             {isUser ? (
               <User className="h-4 w-4" />
@@ -342,7 +363,9 @@ function App() {
             <div className={`inline-block p-4 rounded-lg relative ${
               isUser 
                 ? 'bg-blue-600 text-white' 
-                : 'bg-white border border-gray-200 text-gray-900'
+                : isDarkMode
+                  ? 'bg-gray-700 border border-gray-600 text-gray-100'
+                  : 'bg-white border border-gray-200 text-gray-900'
             }`}>
               {/* Copy Icon */}
               <button
@@ -350,7 +373,9 @@ function App() {
                 className={`absolute top-2 right-2 p-1 rounded-md transition-colors ${
                   isUser 
                     ? 'hover:bg-blue-500 text-blue-100 hover:text-white' 
-                    : 'hover:bg-gray-100 text-gray-400 hover:text-gray-600'
+                    : isDarkMode
+                      ? 'hover:bg-gray-600 text-gray-400 hover:text-gray-200'
+                      : 'hover:bg-gray-100 text-gray-400 hover:text-gray-600'
                 }`}
                 title="Copy message"
               >
@@ -361,7 +386,7 @@ function App() {
               
               {/* Message Metadata */}
               <div className={`text-xs mt-2 ${
-                isUser ? 'text-blue-100' : 'text-gray-500'
+                isUser ? 'text-blue-100' : isDarkMode ? 'text-gray-400' : 'text-gray-500'
               }`}>
                 {formatTimestamp(message.timestamp)}
                 {message.provider && (
@@ -369,23 +394,6 @@ function App() {
                 )}
               </div>
             </div>
-
-            {/* Tools Used */}
-            {message.toolsUsed && message.toolsUsed.length > 0 && (
-              <div className="mt-2 text-left">
-                <div className="text-xs text-gray-500 mb-1">Tools used: {message.toolsUsed.length}</div>
-                <div className="space-y-1">
-                  {message.toolsUsed.map((tool, index) => (
-                    <div key={index} className="text-xs bg-gray-50 p-2 rounded border">
-                      <div className="font-medium text-gray-700">{tool.tool}</div>
-                      <div className="text-gray-600 text-xs mt-1">
-                        Input: {JSON.stringify(tool.input)}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </div>
@@ -393,24 +401,46 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className={`min-h-screen ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
+      <header className={`shadow-sm border-b ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className="h-8 w-8 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center">
                 <Bot className="h-5 w-5 text-white" />
               </div>
-              <h1 className="text-xl font-semibold text-gray-900">MCP Agent Chat</h1>
+              <h1 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>MCP Agent Chat</h1>
             </div>
             
             <div className="flex items-center space-x-4">
+              {/* Dark Mode Toggle */}
+              <button
+                onClick={() => setIsDarkMode(!isDarkMode)}
+                className={`px-3 py-2 rounded-lg text-sm transition-colors flex items-center space-x-2 ${
+                  isDarkMode 
+                    ? 'bg-yellow-500 hover:bg-yellow-600 text-white' 
+                    : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                }`}
+                title={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+              >
+                {isDarkMode ? (
+                  <Sun className="h-4 w-4" />
+                ) : (
+                  <Moon className="h-4 w-4" />
+                )}
+                <span>{isDarkMode ? 'Light' : 'Dark'}</span>
+              </button>
+
               {/* Model Selector */}
               <select
                 value={selectedModel}
                 onChange={(e) => setSelectedModel(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={`px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  isDarkMode 
+                    ? 'bg-gray-700 border-gray-600 text-white' 
+                    : 'bg-white border-gray-300 text-gray-900'
+                }`}
               >
                 <option value="google">Google Gemini</option>
                 <option value="openai">OpenAI GPT-4</option>
@@ -423,7 +453,9 @@ function App() {
                 className={`px-3 py-2 rounded-lg text-sm transition-colors flex items-center space-x-2 ${
                   showLogWindow 
                     ? 'bg-blue-600 text-white hover:bg-blue-700' 
-                    : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                    : isDarkMode
+                      ? 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+                      : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
                 }`}
               >
                 <Activity className="h-4 w-4" />
@@ -437,7 +469,11 @@ function App() {
               
               <button
                 onClick={clearChat}
-                className="px-3 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg text-sm transition-colors flex items-center space-x-2"
+                className={`px-3 py-2 rounded-lg text-sm transition-colors flex items-center space-x-2 ${
+                  isDarkMode
+                    ? 'bg-gray-700 hover:bg-gray-600 text-gray-300'
+                    : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                }`}
               >
                 <Trash2 className="h-4 w-4" />
                 <span>Clear Chat</span>
@@ -451,16 +487,18 @@ function App() {
       <div className="flex h-[calc(100vh-80px)]">
         {/* Chat Area */}
         <div className={`${showLogWindow ? 'w-2/3' : 'w-full'} transition-all duration-300 px-4 py-6`}>
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 h-full flex flex-col">
+          <div className={`rounded-xl shadow-sm border h-full flex flex-col ${
+            isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
+          }`}>
             {/* Messages */}
             <div className="flex-1 overflow-y-auto p-6 space-y-4">
               {messages.length === 0 ? (
                 <div className="text-center py-12">
-                  <Bot className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  <Bot className={`h-12 w-12 mx-auto mb-4 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`} />
+                  <h3 className={`text-lg font-medium mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                     Start a conversation
                   </h3>
-                  <p className="text-gray-500">
+                  <p className={isDarkMode ? 'text-gray-400' : 'text-gray-500'}>
                     Ask me anything! I can help you with various tasks using my available tools.
                   </p>
                 </div>
@@ -471,14 +509,18 @@ function App() {
             </div>
 
             {/* Input Form */}
-            <div className="border-t border-gray-200 p-4">
+            <div className={`border-t p-4 ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
               <form onSubmit={handleSubmit} className="flex space-x-3">
                 <input
                   type="text"
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   placeholder="Type your message here..."
-                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className={`flex-1 px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    isDarkMode 
+                      ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+                      : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
+                  }`}
                   disabled={loading}
                 />
                 <button
@@ -502,7 +544,7 @@ function App() {
           {/* Loading Indicator */}
           {loading && (
             <div className="mt-4 text-center">
-              <div className="inline-flex items-center space-x-2 text-sm text-gray-500">
+              <div className={`inline-flex items-center space-x-2 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
                 <span>AI is thinking...</span>
               </div>
@@ -512,25 +554,27 @@ function App() {
 
         {/* Agent Log Window */}
         {showLogWindow && (
-          <div className="w-1/3 border-l border-gray-200 bg-white">
+          <div className={`w-1/3 border-l ${isDarkMode ? 'border-gray-700 bg-gray-800' : 'border-gray-200 bg-white'}`}>
             <div className="h-full flex flex-col">
               {/* Log Header */}
-              <div className="border-b border-gray-200 p-4">
+              <div className={`border-b p-4 ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <Activity className="h-5 w-5 text-blue-600" />
-                    <h2 className="text-lg font-semibold text-gray-900">Agent Log</h2>
+                    <h2 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Agent Log</h2>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <span className="text-sm text-gray-500">
+                    <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                       {agentLogs.length} entries
                     </span>
                     <button
                       onClick={clearLogs}
-                      className="p-1 hover:bg-gray-100 rounded-md transition-colors"
+                      className={`p-1 rounded-md transition-colors ${
+                        isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
+                      }`}
                       title="Clear logs"
                     >
-                      <Trash2 className="h-4 w-4 text-gray-500" />
+                      <Trash2 className={`h-4 w-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`} />
                     </button>
                   </div>
                 </div>
@@ -540,8 +584,8 @@ function App() {
               <div className="flex-1 overflow-y-auto">
                 {agentLogs.length === 0 ? (
                   <div className="p-6 text-center">
-                    <Activity className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                    <p className="text-sm text-gray-500">
+                    <Activity className={`h-8 w-8 mx-auto mb-2 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`} />
+                    <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                       No agent activity yet. Start a conversation to see logs.
                     </p>
                   </div>

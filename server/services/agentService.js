@@ -253,6 +253,13 @@ Once you add the API keys and restart the server, I'll be able to process your r
           // Execute the agent
           const result = await agent.invoke(input);
 
+          // Log initial LLM response with tool execution request
+          console.log('Initial LLM response with tool execution request:', {
+            provider,
+            response: result.output,
+            timestamp: new Date().toISOString()
+          });
+
           // Check if the response contains tool calls that need to be executed
           console.log('Checking for tool calls in result.output:', result.output);
           const toolResult = await this.executeToolsFromResponse(result.output, provider, message, chatHistory);
@@ -477,6 +484,13 @@ I executed the following tools and got these results:
 ${toolResultsText}
 
 Please provide a natural, helpful response to the user based on these tool results. Be conversational and informative.`;
+
+        // Log request sent to LLM after tool execution
+        console.log('Request sent to LLM after tool execution:', {
+          provider,
+          contextPrompt,
+          timestamp: new Date().toISOString()
+        });
 
         if (provider === 'openai') {
           llmResponse = await llmService.generateOpenAIResponse(llm, contextPrompt);

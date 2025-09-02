@@ -1,0 +1,13 @@
+1.create a full stack applicaiton project with nodejs for backend and react for frontend
+2.This application should work an agent using langchain framework
+3.Agent should have the capability to switch between most populare LLM model like gemini,gpt,claude
+4. Agent should be able to load MCP servers based on JSON configurations like salesforce
+5. Upon user's input from frontend, agent should do the reasoning and act and determine when to invoke which tool from 
+   configured MCP servers
+6. authentication to access all LLM should be covered
+7. authentication to invoke MCP servers should also be covered
+8. I need to start the application with both frontend and backend in one command
+9. all authentication information should be stored in .env file 
+10, need to support communicating with MCP server using both STDIO and HTTP protocols.
+11. Frontend is simple for now, will jsut be a  chat window allowing user to typing in prompt and display 
+    response from agent.

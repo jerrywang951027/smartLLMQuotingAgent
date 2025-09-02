@@ -1,0 +1,90 @@
+{
+  "servers": {
+    "salesforce": {
+      "id": "salesforce",
+      "name": "Salesforce",
+      "description": "Salesforce CRM integration with MCP",
+      "protocol": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-salesforce"],
+      "enabled": false,
+      "config": {
+        "auth": {
+          "type": "token",
+          "token": "${MCP_SALESFORCE_TOKEN}"
+        },
+        "capabilities": [
+          "tools",
+          "resources",
+          "prompts"
+        ],
+        "env": {
+          "SALESFORCE_ACCESS_TOKEN": "${MCP_SALESFORCE_TOKEN}",
+          "SALESFORCE_INSTANCE_URL": "${SALESFORCE_INSTANCE_URL}"
+        }
+      }
+    },
+    "github": {
+      "id": "github",
+      "name": "GitHub",
+      "description": "GitHub repository management via MCP",
+      "host": "localhost",
+      "port": 3002,
+      "protocol": "ws",
+      "enabled": false,
+      "config": {
+        "auth": {
+          "type": "token",
+          "token": "${GITHUB_TOKEN}"
+        },
+        "capabilities": [
+          "tools",
+          "resources"
+        ]
+      }
+    },
+    "database": {
+      "id": "database",
+      "name": "Database",
+      "description": "Database operations and queries via MCP",
+      "host": "localhost",
+      "port": 3003,
+      "protocol": "ws",
+      "enabled": false,
+      "config": {
+        "auth": {
+          "type": "basic",
+          "username": "${DB_USERNAME}",
+          "password": "${DB_PASSWORD}"
+        },
+        "capabilities": [
+          "tools",
+          "resources"
+        ]
+      }
+    },
+    "weather": {
+      "id": "weather",
+      "name": "Weather Service",
+      "description": "Free weather information via wttr.in (no API key required)",
+      "protocol": "stdio",
+      "command": "python",
+      "args": ["-m", "mcp_weather_server"],
+      "enabled": true,
+      "config": {
+        "auth": {
+          "type": "none"
+        },
+        "capabilities": [
+          "tools"
+        ],
+        "env": {}
+      }
+    }
+  },
+  "defaults": {
+    "timeout": 30000,
+    "retryAttempts": 3,
+    "retryDelay": 1000
+  }
+}

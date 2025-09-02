@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Bot, User, Send, Trash2, Copy, Activity, X, ChevronRight, ChevronLeft, Moon, Sun } from 'lucide-react';
 import toast, { Toaster } from 'react-hot-toast';
+import io from 'socket.io-client';
 
 function App() {
   const [messages, setMessages] = useState([]);
@@ -10,6 +11,7 @@ function App() {
   const [showLogWindow, setShowLogWindow] = useState(false);
   const [agentLogs, setAgentLogs] = useState([]);
   const [isDarkMode, setIsDarkMode] = useState(true); // Default to dark mode
+  const [socket, setSocket] = useState(null);
   const messagesEndRef = useRef(null);
   const logEndRef = useRef(null);
 
@@ -29,7 +31,34 @@ function App() {
     scrollLogToBottom();
   }, [agentLogs]);
 
+  // WebSocket connection setup
+  useEffect(() => {
+    const newSocket = io('http://localhost:3000');
+    setSocket(newSocket);
+
+    // Listen for agent logs from server
+    newSocket.on('agent_log', (logEntry) => {
+      console.log('Received log from server:', logEntry);
+      setAgentLogs(prev => [...prev, logEntry]);
+    });
+
+    newSocket.on('connect', () => {
+      console.log('Connected to WebSocket server');
+      toast.success('Connected to real-time logging');
+    });
+
+    newSocket.on('disconnect', () => {
+      console.log('Disconnected from WebSocket server');
+      toast.error('Disconnected from real-time logging');
+    });
+
+    return () => {
+      newSocket.close();
+    };
+  }, []);
+
   const addLogEntry = (type, data) => {
+    // This function is now only used for local logs (like errors)
     const logEntry = {
       id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
       type,
@@ -55,20 +84,7 @@ function App() {
     setInputValue('');
     setLoading(true);
 
-    // Log user message
-    addLogEntry('user_message', {
-      content: userMessage.content,
-      provider: selectedModel
-    });
-
     try {
-      // Log LLM request
-      addLogEntry('llm_request', {
-        provider: selectedModel,
-        message: userMessage.content,
-        chatHistory: messages.length
-      });
-
       // Send message to backend agent
       const response = await fetch('/api/agent/chat', {
         method: 'POST',
@@ -87,36 +103,6 @@ function App() {
       }
 
       const result = await response.json();
-      
-      // Log LLM response
-      addLogEntry('llm_response', {
-        provider: result.provider,
-        response: result.response,
-        success: result.success,
-        toolsUsed: result.toolsUsed?.length || 0
-      });
-
-      // Log tool executions if any
-      if (result.toolsUsed && result.toolsUsed.length > 0) {
-        result.toolsUsed.forEach((tool, index) => {
-          addLogEntry('tool_execution', {
-            tool: tool.tool,
-            input: tool.input,
-            output: tool.output,
-            index: index + 1,
-            total: result.toolsUsed.length
-          });
-        });
-      }
-
-      // Log LLM processing after tools if applicable
-      if (result.reasoning && result.reasoning.some(r => r.includes('processed results with LLM'))) {
-        addLogEntry('llm_after_tools', {
-          provider: result.provider,
-          finalResponse: result.response,
-          reasoning: result.reasoning
-        });
-      }
       
       if (result.success) {
         const assistantMessage = {

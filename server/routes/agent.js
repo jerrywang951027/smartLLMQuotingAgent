@@ -3,6 +3,15 @@ const agentService = require('../services/agentService');
 
 const router = express.Router();
 
+// Initialize agent service with socket.io when available
+router.use((req, res, next) => {
+  const io = req.app.get('io');
+  if (io && !agentService.io) {
+    agentService.setSocketIO(io);
+  }
+  next();
+});
+
 // Process message with agent
 router.post('/chat', async (req, res) => {
   try {

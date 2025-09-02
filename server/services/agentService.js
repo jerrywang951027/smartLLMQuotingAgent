@@ -10,7 +10,26 @@ const mcpService = require('./mcpService');
 class AgentService {
   constructor() {
     this.agents = new Map();
+    this.io = null; // Will be set by the server
     this.initializeAgents();
+  }
+
+  setSocketIO(io) {
+    this.io = io;
+  }
+
+  sendLogEntry(type, data, sessionId = 'default') {
+    if (this.io) {
+      const logEntry = {
+        id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+        type,
+        timestamp: new Date().toISOString(),
+        data,
+        sessionId
+      };
+      this.io.emit('agent_log', logEntry);
+      console.log(`📝 Log sent: ${type}`, data);
+    }
   }
 
   async initializeAgents() {
@@ -249,16 +268,24 @@ Once you add the API keys and restart the server, I'll be able to process your r
       console.log('Agent available:', !!agent);
       console.log('Tools available:', await this.getToolDescriptions());
       
-              try {
-          // Execute the agent
-          const result = await agent.invoke(input);
+      // Log point A: After invoking LLM with request details
+      this.sendLogEntry('llm_request', {
+        provider,
+        message,
+        chatHistory: chatHistory.length,
+        tools: await this.getToolDescriptions()
+      });
+      
+      try {
+        // Execute the agent
+        const result = await agent.invoke(input);
 
-          // Log initial LLM response with tool execution request
-          console.log('Initial LLM response with tool execution request:', {
-            provider,
-            response: result.output,
-            timestamp: new Date().toISOString()
-          });
+        // Log point B: After receiving initial response from LLM with detailed response including tools request
+        this.sendLogEntry('llm_response', {
+          provider,
+          response: result.output,
+          intermediateSteps: result.intermediateSteps || []
+        });
 
           // Check if the response contains tool calls that need to be executed
           console.log('Checking for tool calls in result.output:', result.output);
@@ -408,12 +435,28 @@ Once you add the API keys and restart the server, I'll be able to process your r
             
             console.log(`Executing tool: ${toolName} with params:`, params);
             
+            // Log point C: After invoking tools with detailed request
+            this.sendLogEntry('tool_request', {
+              tool: toolName,
+              input: params,
+              provider
+            });
+            
             // Get the tool and execute it
             const tools = await this.createTools();
             const tool = tools.find(t => t.name === toolName);
             
             if (tool) {
               const result = await tool.func(params);
+              
+              // Log point D: After invoking tools with detailed response from tools
+              this.sendLogEntry('tool_response', {
+                tool: toolName,
+                input: params,
+                output: result,
+                provider
+              });
+              
               toolsUsed.push({
                 tool: toolName,
                 input: params,
@@ -428,9 +471,20 @@ Once you add the API keys and restart the server, I'll be able to process your r
               console.log(`Tool ${toolName} executed successfully:`, result);
             } else {
               console.log(`Tool ${toolName} not found`);
+              const errorResult = `Tool ${toolName} not found`;
+              
+              // Log point D: After invoking tools with detailed response from tools (error case)
+              this.sendLogEntry('tool_response', {
+                tool: toolName,
+                input: params,
+                output: errorResult,
+                provider,
+                error: true
+              });
+              
               toolResults.push({
                 tool: toolName,
-                result: `Tool ${toolName} not found`
+                result: errorResult
               });
             }
           }
@@ -485,11 +539,12 @@ ${toolResultsText}
 
 Please provide a natural, helpful response to the user based on these tool results. Be conversational and informative.`;
 
-        // Log request sent to LLM after tool execution
-        console.log('Request sent to LLM after tool execution:', {
+        // Log point E: After eventual invocation of LLM with results from tools execution
+        this.sendLogEntry('llm_after_tools', {
           provider,
           contextPrompt,
-          timestamp: new Date().toISOString()
+          toolResults: toolResultsText,
+          originalMessage
         });
 
         if (provider === 'openai') {

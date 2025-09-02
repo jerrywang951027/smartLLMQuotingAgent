@@ -3,11 +3,21 @@ const cors = require('cors');
 const helmet = require('helmet');
 const dotenv = require('dotenv');
 const path = require('path');
+const http = require('http');
+const { Server } = require('socket.io');
 
 // Load environment variables from parent directory
 dotenv.config({ path: path.join(__dirname, '../.env') });
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:3001",
+    methods: ["GET", "POST"]
+  }
+});
+
 const PORT = process.env.PORT || 3000;
 
 // Middleware
@@ -52,12 +62,25 @@ app.use((err, req, res, next) => {
   });
 });
 
+// Make io available to other modules
+app.set('io', io);
+
+// Socket.io connection handling
+io.on('connection', (socket) => {
+  console.log('🔌 Client connected:', socket.id);
+  
+  socket.on('disconnect', () => {
+    console.log('🔌 Client disconnected:', socket.id);
+  });
+});
+
 // Start server
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📱 Frontend will be available at http://localhost:3001`);
   console.log(`🔧 Backend API available at http://localhost:${PORT}/api`);
+  console.log(`🔌 WebSocket server ready for real-time logging`);
 });
 
-module.exports = app;
+module.exports = { app, server, io };
 

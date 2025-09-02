@@ -177,6 +177,10 @@ function App() {
         return <Bot className="h-4 w-4 text-green-600" />;
       case 'llm_response':
         return <Bot className="h-4 w-4 text-green-600" />;
+      case 'tool_request':
+        return <Activity className="h-4 w-4 text-yellow-600" />;
+      case 'tool_response':
+        return <Activity className="h-4 w-4 text-orange-600" />;
       case 'tool_execution':
         return <Activity className="h-4 w-4 text-orange-600" />;
       case 'llm_after_tools':
@@ -196,6 +200,10 @@ function App() {
         return 'LLM Request';
       case 'llm_response':
         return 'LLM Response';
+      case 'tool_request':
+        return 'Tool Request';
+      case 'tool_response':
+        return 'Tool Response';
       case 'tool_execution':
         return 'Tool Execution';
       case 'llm_after_tools':
@@ -276,6 +284,49 @@ function App() {
                     <div className="text-xs font-medium">Input:</div>
                     <div className={`p-1 rounded ${
                       isDarkMode ? 'bg-orange-900 text-orange-100' : 'bg-orange-50 text-gray-800'
+                    }`}>
+                      {JSON.stringify(log.data.input)}
+                    </div>
+                  </div>
+                  <div className="mt-1">
+                    <div className="text-xs font-medium">Output:</div>
+                    <div className={`p-1 rounded max-h-16 overflow-y-auto ${
+                      isDarkMode ? 'bg-orange-900 text-orange-100' : 'bg-orange-50 text-gray-800'
+                    }`}>
+                      {typeof log.data.output === 'string' ? log.data.output : JSON.stringify(log.data.output)}
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {log.type === 'tool_request' && (
+                <div>
+                  <div className="font-medium">Tool Request:</div>
+                  <div className="mt-1">Tool: {log.data.tool}</div>
+                  <div className="mt-1">Provider: {log.data.provider}</div>
+                  <div className="mt-1">
+                    <div className="text-xs font-medium">Input:</div>
+                    <div className={`p-1 rounded ${
+                      isDarkMode ? 'bg-yellow-900 text-yellow-100' : 'bg-yellow-50 text-gray-800'
+                    }`}>
+                      {JSON.stringify(log.data.input)}
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {log.type === 'tool_response' && (
+                <div>
+                  <div className="font-medium">Tool Response:</div>
+                  <div className="mt-1">Tool: {log.data.tool}</div>
+                  <div className="mt-1">Provider: {log.data.provider}</div>
+                  {log.data.error && (
+                    <div className="mt-1 text-red-500">Error: {log.data.error}</div>
+                  )}
+                  <div className="mt-1">
+                    <div className="text-xs font-medium">Input:</div>
+                    <div className={`p-1 rounded ${
+                      isDarkMode ? 'bg-yellow-900 text-yellow-100' : 'bg-yellow-50 text-gray-800'
                     }`}>
                       {JSON.stringify(log.data.input)}
                     </div>

@@ -1,30 +1,47 @@
 {
-  "name": "mcp-agent-app",
+  "name": "smart-llm-quoting-agent",
   "version": "1.0.0",
-  "description": "Full-stack application with LangChain agent and MCP server support",
+  "description": "A full-stack AI agent application that integrates multiple Large Language Models (LLMs) with Model Context Protocol (MCP) servers for intelligent task execution and tool usage.",
   "main": "server/index.js",
   "scripts": {
-    "dev": "concurrently \"npm run server:dev\" \"npm run client:dev\"",
-    "server:dev": "cd server && npm run dev",
-    "client:dev": "cd client && npm start",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd server && npm start",
+    "client": "cd client && npm start",
+    "install-all": "npm install && cd server && npm install && cd ../client && npm install",
     "build": "cd client && npm run build",
-    "install:all": "npm install && cd server && npm install && cd ../client && npm install",
-    "start": "cd server && npm start"
+    "start": "cd server && npm start",
+    "test": "cd server && npm test && cd ../client && npm test"
   },
   "keywords": [
-    "langchain",
-    "mcp",
+    "ai",
+    "llm",
     "agent",
+    "langchain",
     "react",
-    "nodejs"
+    "nodejs",
+    "mcp",
+    "model-context-protocol",
+    "gemini",
+    "openai",
+    "claude",
+    "weather",
+    "tools"
   ],
-  "author": "",
+  "author": "Jin Wang",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jerrywang951027/smartLLMQuotingAgent.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jerrywang951027/smartLLMQuotingAgent/issues"
+  },
+  "homepage": "https://github.com/jerrywang951027/smartLLMQuotingAgent#readme",
   "devDependencies": {
     "concurrently": "^8.2.2"
   },
-  "dependencies": {
-    "lucide-react": "^0.542.0"
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
   }
 }
-
